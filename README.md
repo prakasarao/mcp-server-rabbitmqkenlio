@@ -35,4 +35,4 @@ A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol
 }
 ```
 4. Install and open the [Claude desktop app](https://claude.ai/download).
-5. Try asking Claude to do a read/write operation of some sort to confirm the setup (e.g. create an S3 bucket and give it a random name). If there are issues, use the Debugging tools provided in the MCP documentation [here](https://modelcontextprotocol.io/docs/tools/debugging).
+5. Try asking Claude to do a read/write operation of some sort to confirm the setup (e.g. ask it to publish a message to a queue). If there are issues, use the Debugging tools provided in the MCP documentation [here](https://modelcontextprotocol.io/docs/tools/debugging).
