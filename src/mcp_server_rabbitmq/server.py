@@ -10,11 +10,19 @@ from .models import Enqueue
 from .logger import Logger, LOG_LEVEL
 
 
-async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, logging_level: LOG_LEVEL = LOG_LEVEL.WARNING) -> None:
-    # Setup server and logger
+async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = LOG_LEVEL.DEBUG.name) -> None:
+    # Setup server
     server = Server("mcp-rabbitmq")
-    # Make logger another option to pass
-    logger = Logger("server.log")
+    # Setup logger
+    is_log_level_exception = False
+    try:
+        log_level = LOG_LEVEL[log_level]
+    except Exception:
+        is_log_level_exception = True
+        log_level = LOG_LEVEL.WARNING
+    logger = Logger("server.log", log_level)
+    if is_log_level_exception:
+        logger.warning("Wrong log_level received. Default to WARNING")
     # Setup RabbitMQ connection metadata
     protocol = "amqps" if use_tls else "amqp"
     url = f"{protocol}://{username}:{password}@{rabbitmq_host}:{port}"
@@ -40,6 +48,7 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
         arguments: dict
     ) -> list[TextContent]:
         if name == "enqueue":
+            logger.debug("Executing enqueue tool")
             message = arguments["message"]
             queue = arguments["queue"]
             # Send to RabbitMQ host
@@ -50,7 +59,7 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 channel.basic_publish(exchange="", routing_key=queue, body=message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
-                logger.error(f"[ERROR] {e}")
+                logger.error(f"{e}")
                 return [TextContent(type="text", text=str("failed"))]
         raise ValueError(f"Tool not found: {name}")
 

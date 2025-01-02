@@ -31,7 +31,7 @@ class Logger:
 
     def __post_process_log_entry(self, msg: str, log_level: LOG_LEVEL) -> str:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        return f"[{log_level}] {timestamp} - {msg}\n"
+        return f"[{log_level.name}] {timestamp} - {msg}\n"
 
     def __write_log(self, msg):
         with open(self.log_file_path, "a") as f:
