@@ -7,10 +7,10 @@ from mcp.types import (
 import pika
 import ssl
 from .models import Enqueue
-from .logger import Logger
+from .logger import Logger, LOG_LEVEL
 
 
-async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool) -> None:
+async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, logging_level: LOG_LEVEL = LOG_LEVEL.WARNING) -> None:
     # Setup server and logger
     server = Server("mcp-rabbitmq")
     # Make logger another option to pass
@@ -50,7 +50,7 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 channel.basic_publish(exchange="", routing_key=queue, body=message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
-                logger.log(f"[ERROR] {e}")
+                logger.error(f"[ERROR] {e}")
                 return [TextContent(type="text", text=str("failed"))]
         raise ValueError(f"Tool not found: {name}")
 
