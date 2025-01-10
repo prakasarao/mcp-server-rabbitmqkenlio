@@ -6,7 +6,7 @@ from mcp.types import (
 )
 import pika
 import ssl
-from .models import Enqueue
+from .models import Enqueue, Fanout
 from .logger import Logger, LOG_LEVEL
 
 
@@ -39,6 +39,11 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 name="enqueue",
                 description="""Enqueue a message to a queue hosted on RabbitMQ""",
                 inputSchema=Enqueue.model_json_schema(),
+            ),
+            Tool(
+                name="fanout",
+                description="""Publish a message to an exchange with fanout type""",
+                inputSchema=Fanout.model_json_schema(),
             )
         ]
 
@@ -51,12 +56,24 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             logger.debug("Executing enqueue tool")
             message = arguments["message"]
             queue = arguments["queue"]
-            # Send to RabbitMQ host
             try:
                 connection = pika.BlockingConnection(parameters)
                 channel = connection.channel()
                 channel.queue_declare(queue)
                 channel.basic_publish(exchange="", routing_key=queue, body=message)
+                return [TextContent(type="text", text=str("suceeded"))]
+            except Exception as e:
+                logger.error(f"{e}")
+                return [TextContent(type="text", text=str("failed"))]
+        elif name == "fanout":
+            logger.debug("Executing fanout tool")
+            exchange = arguments["exchange"]
+            message = arguments["message"]
+            try:
+                connection = pika.BlockingConnection(parameters)
+                channel = connection.channel()
+                channel.exchange_declare(exchange=exchange, exchange_type="fanout")
+                channel.basic_publish(exchange=exchange, routing_key="", body=message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
                 logger.error(f"{e}")
