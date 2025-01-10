@@ -56,6 +56,18 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             logger.debug("Executing enqueue tool")
             message = arguments["message"]
             queue = arguments["queue"]
+            
+            if not message or not message.strip():
+                raise ValueError("Message cannot be empty")
+            if not queue or not queue.strip():
+                raise ValueError("Queue name cannot be empty")
+            # RabbitMQ queue names can only contain letters, digits, hyphen, underscore, period, or colon
+            # and must be less than 255 characters
+            if not all(c.isalnum() or c in '-_.:' for c in queue):
+                raise ValueError("Queue name can only contain letters, digits, hyphen, underscore, period, or colon")
+            if len(queue) > 255:
+                raise ValueError("Queue name must be less than 255 characters")
+
             try:
                 connection = pika.BlockingConnection(parameters)
                 channel = connection.channel()
@@ -67,8 +79,20 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 return [TextContent(type="text", text=str("failed"))]
         elif name == "fanout":
             logger.debug("Executing fanout tool")
-            exchange = arguments["exchange"]
             message = arguments["message"]
+            exchange = arguments["exchange"]
+            
+            if not message or not message.strip():
+                raise ValueError("Message cannot be empty")
+            if not exchange or not exchange.strip():
+                raise ValueError("Exchange name cannot be empty")
+            # RabbitMQ exchange names can only contain letters, digits, hyphen, underscore, period, or colon
+            # and must be less than 255 characters
+            if not all(c.isalnum() or c in '-_.:' for c in exchange):
+                raise ValueError("Exchange name can only contain letters, digits, hyphen, underscore, period, or colon")
+            if len(exchange) > 255:
+                raise ValueError("Exchange name must be less than 255 characters")
+
             try:
                 connection = pika.BlockingConnection(parameters)
                 channel = connection.channel()
