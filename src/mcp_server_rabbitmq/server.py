@@ -8,6 +8,7 @@ import pika
 import ssl
 from .models import Enqueue, Fanout
 from .logger import Logger, LOG_LEVEL
+from .connection import RabbitMQConnection, validate_rabbitmq_name
 
 
 async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = LOG_LEVEL.DEBUG.name) -> None:
@@ -23,14 +24,8 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
     logger = Logger("server.log", log_level)
     if is_log_level_exception:
         logger.warning("Wrong log_level received. Default to WARNING")
-    # Setup RabbitMQ connection metadata
-    protocol = "amqps" if use_tls else "amqp"
-    url = f"{protocol}://{username}:{password}@{rabbitmq_host}:{port}"
-    parameters = pika.URLParameters(url)
-    if use_tls:
-        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-        ssl_context.set_ciphers('ECDHE+AESGCM:!ECDSA')
-        parameters.ssl_options = pika.SSLOptions(context=ssl_context)
+    # Setup RabbitMQ connection
+    rabbitmq = RabbitMQConnection(rabbitmq_host, port, username, password, use_tls)
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
@@ -57,22 +52,13 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             message = arguments["message"]
             queue = arguments["queue"]
             
-            if not message or not message.strip():
-                raise ValueError("Message cannot be empty")
-            if not queue or not queue.strip():
-                raise ValueError("Queue name cannot be empty")
-            # RabbitMQ queue names can only contain letters, digits, hyphen, underscore, period, or colon
-            # and must be less than 255 characters
-            if not all(c.isalnum() or c in '-_.:' for c in queue):
-                raise ValueError("Queue name can only contain letters, digits, hyphen, underscore, period, or colon")
-            if len(queue) > 255:
-                raise ValueError("Queue name must be less than 255 characters")
+            validate_rabbitmq_name(queue, "Queue name")
 
             try:
-                connection = pika.BlockingConnection(parameters)
-                channel = connection.channel()
+                connection, channel = rabbitmq.get_channel()
                 channel.queue_declare(queue)
                 channel.basic_publish(exchange="", routing_key=queue, body=message)
+                connection.close()
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
                 logger.error(f"{e}")
@@ -82,22 +68,13 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             message = arguments["message"]
             exchange = arguments["exchange"]
             
-            if not message or not message.strip():
-                raise ValueError("Message cannot be empty")
-            if not exchange or not exchange.strip():
-                raise ValueError("Exchange name cannot be empty")
-            # RabbitMQ exchange names can only contain letters, digits, hyphen, underscore, period, or colon
-            # and must be less than 255 characters
-            if not all(c.isalnum() or c in '-_.:' for c in exchange):
-                raise ValueError("Exchange name can only contain letters, digits, hyphen, underscore, period, or colon")
-            if len(exchange) > 255:
-                raise ValueError("Exchange name must be less than 255 characters")
+            validate_rabbitmq_name(exchange, "Exchange name")
 
             try:
-                connection = pika.BlockingConnection(parameters)
-                channel = connection.channel()
+                connection, channel = rabbitmq.get_channel()
                 channel.exchange_declare(exchange=exchange, exchange_type="fanout")
                 channel.basic_publish(exchange=exchange, routing_key="", body=message)
+                connection.close()
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
                 logger.error(f"{e}")
