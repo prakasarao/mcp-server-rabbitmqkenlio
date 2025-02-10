@@ -9,6 +9,7 @@ import ssl
 from .models import Enqueue, Fanout
 from .logger import Logger, LOG_LEVEL
 from .connection import RabbitMQConnection, validate_rabbitmq_name
+from .handlers import handle_enqueue, handle_fanout
 
 
 async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = LOG_LEVEL.DEBUG.name) -> None:
@@ -55,10 +56,7 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             validate_rabbitmq_name(queue, "Queue name")
 
             try:
-                connection, channel = rabbitmq.get_channel()
-                channel.queue_declare(queue)
-                channel.basic_publish(exchange="", routing_key=queue, body=message)
-                connection.close()
+                handle_enqueue(rabbitmq, queue, message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
                 logger.error(f"{e}")
@@ -71,10 +69,7 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             validate_rabbitmq_name(exchange, "Exchange name")
 
             try:
-                connection, channel = rabbitmq.get_channel()
-                channel.exchange_declare(exchange=exchange, exchange_type="fanout")
-                channel.basic_publish(exchange=exchange, routing_key="", body=message)
-                connection.close()
+                handle_fanout(rabbitmq, exchange, message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
                 logger.error(f"{e}")
