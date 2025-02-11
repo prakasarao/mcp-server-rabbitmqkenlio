@@ -1,9 +1,19 @@
 # RabbitMQ MCP Server
+[![smithery badge](https://smithery.ai/badge/@kenliao94/mcp-server-rabbitmq)](https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq)
 
 A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) server implementation for RabbitMQ. Enabling MCP client to interact with queues and topics hosted in a RabbitMQ instance.
 
 ## Running locally with the Claude desktop app
 
+### Installing via Smithery
+
+To install RabbitMQ MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq):
+
+```bash
+npx -y @smithery/cli install @kenliao94/mcp-server-rabbitmq --client claude
+```
+
+### Manual Installation
 1. Clone this repository.
 2. Add the following to your `claude_desktop_config.json` file:
 - On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
