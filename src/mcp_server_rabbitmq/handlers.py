@@ -17,3 +17,7 @@ def handle_fanout(rabbitmq: RabbitMQConnection, exchange: str, message: str):
 def handle_list_queues(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_queues()
     return [queue['name'] for queue in result]
+
+def handle_list_exchanges(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
+    result = rabbitmq_admin.list_exchanges()
+    return [exchange['name'] for exchange in result]

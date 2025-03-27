@@ -11,3 +11,6 @@ class Fanout(BaseModel):
 
 class ListQueues(BaseModel):
     pass
+
+class ListExchanges(BaseModel):
+    pass

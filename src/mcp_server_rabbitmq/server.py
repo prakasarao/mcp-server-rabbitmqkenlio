@@ -5,10 +5,10 @@ from mcp.types import (
     Tool,
 )
 import ssl
-from .models import Enqueue, Fanout, ListQueues
+from .models import Enqueue, Fanout, ListQueues, ListExchanges
 from .logger import Logger, LOG_LEVEL
 from .connection import RabbitMQConnection, validate_rabbitmq_name
-from .handlers import handle_enqueue, handle_fanout, handle_list_queues
+from .handlers import handle_enqueue, handle_fanout, handle_list_queues, handle_list_exchanges
 from .admin import RabbitMQAdmin
 
 
@@ -43,6 +43,11 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 name="list_queues",
                 description="""List all the queues in the broker""",
                 inputSchema=ListQueues.model_json_schema(),
+            ),
+            Tool(
+                name="list_exchanges",
+                description="""List all the exchanges in the broker""",
+                inputSchema=ListExchanges.model_json_schema(),
             )
         ]
 
@@ -90,6 +95,14 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 logger.error(f"{e}")
                 return [TextContent(type="text", text=str("failed"))]
             return [TextContent(type="text", text=str("succeeded"))]
+        elif name == "list_exchanges":
+            try:
+                admin = RabbitMQAdmin(rabbitmq_host, api_port, username, password, use_tls)
+                result = handle_list_exchanges(admin)
+                return [TextContent(type="text", text=str(result))]
+            except Exception as e:
+                logger.error(f"{e}")
+                return [TextContent(type="text", text=str("failed"))]
         raise ValueError(f"Tool not found: {name}")
 
     options = server.create_initialization_options()
