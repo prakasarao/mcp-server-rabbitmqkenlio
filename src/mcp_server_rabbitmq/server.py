@@ -4,15 +4,15 @@ from mcp.types import (
     TextContent,
     Tool,
 )
-import pika
 import ssl
-from .models import Enqueue, Fanout
+from .models import Enqueue, Fanout, ListQueues
 from .logger import Logger, LOG_LEVEL
 from .connection import RabbitMQConnection, validate_rabbitmq_name
-from .handlers import handle_enqueue, handle_fanout
+from .handlers import handle_enqueue, handle_fanout, handle_list_queues
+from .admin import RabbitMQAdmin
 
 
-async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = LOG_LEVEL.DEBUG.name) -> None:
+async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = LOG_LEVEL.DEBUG.name, api_port: int = 15671) -> None:
     # Setup server
     server = Server("mcp-rabbitmq")
     # Setup logger
@@ -25,8 +25,6 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
     logger = Logger("server.log", log_level)
     if is_log_level_exception:
         logger.warning("Wrong log_level received. Default to WARNING")
-    # Setup RabbitMQ connection
-    rabbitmq = RabbitMQConnection(rabbitmq_host, port, username, password, use_tls)
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
@@ -40,6 +38,11 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 name="fanout",
                 description="""Publish a message to an exchange with fanout type""",
                 inputSchema=Fanout.model_json_schema(),
+            ),
+            Tool(
+                name="list_queues",
+                description="""List all the queues in the broker""",
+                inputSchema=ListQueues.model_json_schema(),
             )
         ]
 
@@ -56,6 +59,8 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             validate_rabbitmq_name(queue, "Queue name")
 
             try:
+                # Setup RabbitMQ connection
+                rabbitmq = RabbitMQConnection(rabbitmq_host, port, username, password, use_tls)
                 handle_enqueue(rabbitmq, queue, message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
@@ -69,11 +74,22 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
             validate_rabbitmq_name(exchange, "Exchange name")
 
             try:
+                # Setup RabbitMQ connection
+                rabbitmq = RabbitMQConnection(rabbitmq_host, port, username, password, use_tls)
                 handle_fanout(rabbitmq, exchange, message)
                 return [TextContent(type="text", text=str("suceeded"))]
             except Exception as e:
                 logger.error(f"{e}")
                 return [TextContent(type="text", text=str("failed"))]
+        elif name == "list_queues":
+            try:
+                admin = RabbitMQAdmin(rabbitmq_host, api_port, username, password, use_tls)
+                result = handle_list_queues(admin)
+                return [TextContent(type="text", text=str(result))]
+            except Exception as e:
+                logger.error(f"{e}")
+                return [TextContent(type="text", text=str("failed"))]
+            return [TextContent(type="text", text=str("succeeded"))]
         raise ValueError(f"Tool not found: {name}")
 
     options = server.create_initialization_options()

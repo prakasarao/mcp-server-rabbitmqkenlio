@@ -78,6 +78,6 @@ class RabbitMQAdmin:
     
 if __name__ == "__main__":
     # test
-    admin = RabbitMQAdmin("localhost", 15672, "guest", "guest", False)
+    admin = RabbitMQAdmin("b-9560b8e1-3d33-4d91-9488-a3dc4a61dfe7.mq.us-east-1.amazonaws.com", 15671, "admin", "admintestrabbit", True)
     print(admin.list_queues())
     print("Done")
