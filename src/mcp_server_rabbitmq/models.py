@@ -14,3 +14,11 @@ class ListQueues(BaseModel):
 
 class ListExchanges(BaseModel):
     pass
+
+class GetQueueInfo(BaseModel):
+    queue: Annotated[str, Field(description="The name of the queue to get info about")]
+    vhost: Annotated[str, Field(description="The virtual host where the queue exists")] = "/"
+
+class DeleteQueue(BaseModel):
+    queue: Annotated[str, Field(description="The name of the queue to delete")]
+    vhost: Annotated[str, Field(description="The virtual host where the queue exists")] = "/"

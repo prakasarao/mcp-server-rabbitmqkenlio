@@ -21,3 +21,9 @@ def handle_list_queues(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
 def handle_list_exchanges(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_exchanges()
     return [exchange['name'] for exchange in result]
+
+def handle_get_queue_info(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str = "/") -> dict:
+    return rabbitmq_admin.get_queue_info(queue, vhost)
+
+def handle_delete_queue(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str = "/") -> None:
+    rabbitmq_admin.delete_queue(queue, vhost)

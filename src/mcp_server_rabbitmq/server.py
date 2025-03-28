@@ -5,10 +5,17 @@ from mcp.types import (
     Tool,
 )
 import ssl
-from .models import Enqueue, Fanout, ListQueues, ListExchanges
+from .models import Enqueue, Fanout, ListQueues, ListExchanges, GetQueueInfo, DeleteQueue
 from .logger import Logger, LOG_LEVEL
 from .connection import RabbitMQConnection, validate_rabbitmq_name
-from .handlers import handle_enqueue, handle_fanout, handle_list_queues, handle_list_exchanges
+from .handlers import (
+    handle_enqueue, 
+    handle_fanout, 
+    handle_list_queues, 
+    handle_list_exchanges,
+    handle_get_queue_info,
+    handle_delete_queue
+)
 from .admin import RabbitMQAdmin
 
 
@@ -48,6 +55,16 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 name="list_exchanges",
                 description="""List all the exchanges in the broker""",
                 inputSchema=ListExchanges.model_json_schema(),
+            ),
+            Tool(
+                name="get_queue_info",
+                description="""Get detailed information about a specific queue""",
+                inputSchema=GetQueueInfo.model_json_schema(),
+            ),
+            Tool(
+                name="delete_queue",
+                description="""Delete a specific queue""",
+                inputSchema=DeleteQueue.model_json_schema(),
             )
         ]
 
@@ -100,6 +117,28 @@ async def serve(rabbitmq_host: str, port: int, username: str, password: str, use
                 admin = RabbitMQAdmin(rabbitmq_host, api_port, username, password, use_tls)
                 result = handle_list_exchanges(admin)
                 return [TextContent(type="text", text=str(result))]
+            except Exception as e:
+                logger.error(f"{e}")
+                return [TextContent(type="text", text=str("failed"))]
+        elif name == "get_queue_info":
+            try:
+                admin = RabbitMQAdmin(rabbitmq_host, api_port, username, password, use_tls)
+                queue = arguments["queue"]
+                vhost = arguments.get("vhost", "/")
+                validate_rabbitmq_name(queue, "Queue name")
+                result = handle_get_queue_info(admin, queue, vhost)
+                return [TextContent(type="text", text=str(result))]
+            except Exception as e:
+                logger.error(f"{e}")
+                return [TextContent(type="text", text=str("failed"))]
+        elif name == "delete_queue":
+            try:
+                admin = RabbitMQAdmin(rabbitmq_host, api_port, username, password, use_tls)
+                queue = arguments["queue"]
+                vhost = arguments.get("vhost", "/")
+                validate_rabbitmq_name(queue, "Queue name")
+                handle_delete_queue(admin, queue, vhost)
+                return [TextContent(type="text", text=str("succeeded"))]
             except Exception as e:
                 logger.error(f"{e}")
                 return [TextContent(type="text", text=str("failed"))]
