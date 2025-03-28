@@ -27,3 +27,12 @@ def handle_get_queue_info(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str 
 
 def handle_delete_queue(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str = "/") -> None:
     rabbitmq_admin.delete_queue(queue, vhost)
+
+def handle_purge_queue(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str = "/") -> None:
+    rabbitmq_admin.purge_queue(queue, vhost)
+
+def handle_delete_exchange(rabbitmq_admin: RabbitMQAdmin, exchange: str, vhost: str = "/") -> None:
+    rabbitmq_admin.delete_exchange(exchange, vhost)
+
+def handle_get_exchange_info(rabbitmq_admin: RabbitMQAdmin, exchange: str, vhost: str = "/") -> dict:
+    return rabbitmq_admin.get_exchange_info(exchange, vhost)

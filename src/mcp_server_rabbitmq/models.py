@@ -22,3 +22,15 @@ class GetQueueInfo(BaseModel):
 class DeleteQueue(BaseModel):
     queue: Annotated[str, Field(description="The name of the queue to delete")]
     vhost: Annotated[str, Field(description="The virtual host where the queue exists")] = "/"
+
+class PurgeQueue(BaseModel):
+    queue: Annotated[str, Field(description="The name of the queue to purge")]
+    vhost: Annotated[str, Field(description="The virtual host where the queue exists")] = "/"
+
+class DeleteExchange(BaseModel):
+    exchange: Annotated[str, Field(description="The name of the exchange to delete")]
+    vhost: Annotated[str, Field(description="The virtual host where the exchange exists")] = "/"
+
+class GetExchangeInfo(BaseModel):
+    exchange: Annotated[str, Field(description="The name of the exchange to get info about")]
+    vhost: Annotated[str, Field(description="The virtual host where the exchange exists")] = "/"
