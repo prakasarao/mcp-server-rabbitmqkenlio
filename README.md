@@ -13,6 +13,9 @@ To install RabbitMQ MCP Server for Claude Desktop automatically via [Smithery](h
 npx -y @smithery/cli install @kenliao94/mcp-server-rabbitmq --client claude
 ```
 
+### Try it online
+https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
+
 ### Manual Installation
 1. Clone this repository.
 2. Add the following to your `claude_desktop_config.json` file:
