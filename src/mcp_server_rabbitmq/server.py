@@ -5,6 +5,7 @@ from mcp.types import (
     Tool,
 )
 import ssl
+import logging
 from .models import (
     Enqueue, 
     Fanout, 
@@ -16,7 +17,6 @@ from .models import (
     DeleteExchange,
     GetExchangeInfo
 )
-from .logger import Logger, LOG_LEVEL
 from .connection import RabbitMQConnection, validate_rabbitmq_name
 from .handlers import (
     handle_enqueue, 
@@ -32,19 +32,20 @@ from .handlers import (
 from .admin import RabbitMQAdmin
 
 
-async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = LOG_LEVEL.DEBUG.name, api_port: int = 15671) -> None:
+async def serve(rabbitmq_host: str, port: int, username: str, password: str, use_tls: bool, log_level: str = "INFO", api_port: int = 15671) -> None:
     # Setup server
     server = Server("mcp-rabbitmq")
     # Setup logger
-    is_log_level_exception = False
-    try:
-        log_level = LOG_LEVEL[log_level]
-    except Exception:
-        is_log_level_exception = True
-        log_level = LOG_LEVEL.WARNING
-    logger = Logger("server.log", log_level)
-    if is_log_level_exception:
-        logger.warning("Wrong log_level received. Default to WARNING")
+    logger = logging.getLogger("mcp-rabbitmq")
+    logger.setLevel(log_level)
+    # Configure logging with timestamp and file output
+    logging.basicConfig(
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler('server.log'),
+            logging.StreamHandler()
+        ]
+    )
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
