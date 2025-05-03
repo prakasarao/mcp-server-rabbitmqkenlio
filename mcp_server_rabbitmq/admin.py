@@ -1,6 +1,8 @@
-import requests
-from typing import Optional, List, Dict
 import base64
+from typing import Dict, List, Optional
+
+import requests
+
 
 class RabbitMQAdmin:
     def __init__(self, host: str, port: int, username: str, password: str, use_tls: bool):
@@ -30,37 +32,37 @@ class RabbitMQAdmin:
 
     def get_queue_info(self, queue: str, vhost: str = "/") -> Dict:
         """Get detailed information about a specific queue"""
-        vhost_encoded = requests.utils.quote(vhost, safe='')
+        vhost_encoded = requests.utils.quote(vhost, safe="")
         response = self._make_request("GET", f"queues/{vhost_encoded}/{queue}")
         return response.json()
 
     def delete_queue(self, queue: str, vhost: str = "/") -> None:
         """Delete a queue"""
         validate_rabbitmq_name(queue, "Queue name")
-        vhost_encoded = requests.utils.quote(vhost, safe='')
+        vhost_encoded = requests.utils.quote(vhost, safe="")
         self._make_request("DELETE", f"queues/{vhost_encoded}/{queue}")
 
     def purge_queue(self, queue: str, vhost: str = "/") -> None:
         """Remove all messages from a queue"""
         validate_rabbitmq_name(queue, "Queue name")
-        vhost_encoded = requests.utils.quote(vhost, safe='')
+        vhost_encoded = requests.utils.quote(vhost, safe="")
         self._make_request("DELETE", f"queues/{vhost_encoded}/{queue}/contents")
 
     def get_exchange_info(self, exchange: str, vhost: str = "/") -> Dict:
         """Get detailed information about a specific exchange"""
-        vhost_encoded = requests.utils.quote(vhost, safe='')
+        vhost_encoded = requests.utils.quote(vhost, safe="")
         response = self._make_request("GET", f"exchanges/{vhost_encoded}/{exchange}")
         return response.json()
 
     def delete_exchange(self, exchange: str, vhost: str = "/") -> None:
         """Delete an exchange"""
         validate_rabbitmq_name(exchange, "Exchange name")
-        vhost_encoded = requests.utils.quote(vhost, safe='')
+        vhost_encoded = requests.utils.quote(vhost, safe="")
         self._make_request("DELETE", f"exchanges/{vhost_encoded}/{exchange}")
 
     def get_bindings(self, queue: Optional[str] = None, exchange: Optional[str] = None, vhost: str = "/") -> List[Dict]:
         """Get bindings, optionally filtered by queue or exchange"""
-        vhost_encoded = requests.utils.quote(vhost, safe='')
+        vhost_encoded = requests.utils.quote(vhost, safe="")
         if queue:
             validate_rabbitmq_name(queue, "Queue name")
             response = self._make_request("GET", f"queues/{vhost_encoded}/{queue}/bindings")

@@ -3,6 +3,15 @@
 
 A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) server implementation for RabbitMQ. Enabling MCP client to interact with queues and topics hosted in a RabbitMQ instance.
 
+## Features
+
+- Connect to RabbitMQ instances
+- Publish messages to queues and exchanges
+- List queues and exchanges
+- Get detailed information about queues and exchanges
+- Delete queues and exchanges
+- Purge messages from queues
+
 ## Running locally with the Claude desktop app
 
 ### Installing via Smithery
@@ -22,7 +31,7 @@ https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 - On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
 - On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
-```
+```json
 {
     "mcpServers": {
       "rabbitmq": {
@@ -49,3 +58,38 @@ https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 ```
 4. Install and open the [Claude desktop app](https://claude.ai/download).
 5. Try asking Claude to do a read/write operation of some sort to confirm the setup (e.g. ask it to publish a message to a queue). If there are issues, use the Debugging tools provided in the MCP documentation [here](https://modelcontextprotocol.io/docs/tools/debugging).
+
+## Development
+
+### Setup Development Environment
+
+```bash
+# Clone the repository
+git clone https://github.com/kenliao94/mcp-server-rabbitmq.git
+cd mcp-server-rabbitmq
+
+# Install pre-commit hooks
+pre-commit install
+```
+
+### Running Tests
+
+```bash
+pytest
+```
+
+### Code Quality
+
+This project uses ruff for linting and formatting:
+
+```bash
+# Run linter
+ruff check .
+
+# Run formatter
+ruff format .
+```
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.

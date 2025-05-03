@@ -1,6 +1,8 @@
-from .connection import RabbitMQConnection
-from .admin import RabbitMQAdmin
 from typing import List
+
+from .admin import RabbitMQAdmin
+from .connection import RabbitMQConnection
+
 
 def handle_enqueue(rabbitmq: RabbitMQConnection, queue: str, message: str):
     connection, channel = rabbitmq.get_channel()
@@ -16,11 +18,11 @@ def handle_fanout(rabbitmq: RabbitMQConnection, exchange: str, message: str):
 
 def handle_list_queues(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_queues()
-    return [queue['name'] for queue in result]
+    return [queue["name"] for queue in result]
 
 def handle_list_exchanges(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_exchanges()
-    return [exchange['name'] for exchange in result]
+    return [exchange["name"] for exchange in result]
 
 def handle_get_queue_info(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str = "/") -> dict:
     return rabbitmq_admin.get_queue_info(queue, vhost)
