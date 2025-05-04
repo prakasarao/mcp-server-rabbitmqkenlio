@@ -1,5 +1,6 @@
 import argparse
 import logging
+import sys
 
 from fastmcp import FastMCP
 
@@ -63,6 +64,7 @@ class RabbitMQMCPServer:
                 handle_enqueue(rabbitmq, queue, message)
                 return "Message successfully enqueued"
             except Exception as e:
+                print(e, file=sys.stderr)
                 self.logger.error(f"{e}")
                 return f"Failed to enqueue message: {e}"
 
@@ -87,6 +89,7 @@ class RabbitMQMCPServer:
         @self.mcp.tool()
         def list_queues() -> str:
             """List all the queues in the broker."""
+            print("triggered list queues", file=sys.stderr)
             try:
                 admin = RabbitMQAdmin(
                     self.rabbitmq_host,
@@ -98,6 +101,7 @@ class RabbitMQMCPServer:
                 result = handle_list_queues(admin)
                 return str(result)
             except Exception as e:
+                print(e, file=sys.stderr)
                 self.logger.error(f"{e}")
                 return f"Failed to list queues: {e}"
 
@@ -240,7 +244,7 @@ def main():
         "--use-tls", type=bool, default=False, help="Is the connection using TLS/SSL"
     )
     parser.add_argument(
-        "--api-port", type=int, default=15672, help="Port for the RabbitMQ management API"
+        "--api-port", type=int, default=15671, help="Port for the RabbitMQ management API"
     )
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
     parser.add_argument(
