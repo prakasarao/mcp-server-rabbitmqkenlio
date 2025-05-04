@@ -22,7 +22,15 @@ from mcp_server_rabbitmq.handlers import (
 
 
 class RabbitMQMCPServer:
-    def __init__(self):
+    def __init__(
+        self,
+        rabbitmq_host=None,
+        rabbitmq_port=None,
+        rabbitmq_username=None,
+        rabbitmq_password=None,
+        rabbitmq_use_tls=None,
+        rabbitmq_api_port=None,
+    ):
         # Setup logger
         logger.remove()
         logger.add(sys.stderr, level=os.getenv("FASTMCP_LOG_LEVEL", "WARNING"))
@@ -36,12 +44,12 @@ class RabbitMQMCPServer:
         )
 
         # Connection parameters
-        self.rabbitmq_host = None
-        self.rabbitmq_port = None
-        self.rabbitmq_username = None
-        self.rabbitmq_password = None
-        self.rabbitmq_use_tls = None
-        self.rabbitmq_api_port = None
+        self.rabbitmq_host = rabbitmq_host
+        self.rabbitmq_port = rabbitmq_port
+        self.rabbitmq_username = rabbitmq_username
+        self.rabbitmq_password = rabbitmq_password
+        self.rabbitmq_use_tls = rabbitmq_use_tls
+        self.rabbitmq_api_port = rabbitmq_api_port
 
         # Register tools
         self._register_tools()
@@ -62,7 +70,6 @@ class RabbitMQMCPServer:
                 handle_enqueue(rabbitmq, queue, message)
                 return "Message successfully enqueued"
             except Exception as e:
-                print(e, file=sys.stderr)
                 self.logger.error(f"{e}")
                 return f"Failed to enqueue message: {e}"
 
@@ -87,7 +94,6 @@ class RabbitMQMCPServer:
         @self.mcp.tool()
         def list_queues() -> str:
             """List all the queues in the broker."""
-            print("triggered list queues", file=sys.stderr)
             try:
                 admin = RabbitMQAdmin(
                     self.rabbitmq_host,
@@ -99,7 +105,6 @@ class RabbitMQMCPServer:
                 result = handle_list_queues(admin)
                 return str(result)
             except Exception as e:
-                print(e, file=sys.stderr)
                 self.logger.error(f"{e}")
                 return f"Failed to list queues: {e}"
 
@@ -212,13 +217,6 @@ class RabbitMQMCPServer:
 
     def run(self, args):
         """Run the MCP server with the provided arguments."""
-        self.rabbitmq_host = args.rabbitmq_host
-        self.rabbitmq_port = args.port
-        self.rabbitmq_username = args.username
-        self.rabbitmq_password = args.password
-        self.rabbitmq_use_tls = args.use_tls
-        self.rabbitmq_api_port = args.api_port
-
         self.logger.info(f"Starting RabbitMQ MCP Server v{MCP_SERVER_VERSION}")
         self.logger.info(f"Connecting to RabbitMQ at {self.rabbitmq_host}:{self.rabbitmq_port}")
 
@@ -251,7 +249,17 @@ def main():
 
     args = parser.parse_args()
 
-    server = RabbitMQMCPServer()
+    # Create server with connection parameters from args
+    server = RabbitMQMCPServer(
+        rabbitmq_host=args.rabbitmq_host,
+        rabbitmq_port=args.port,
+        rabbitmq_username=args.username,
+        rabbitmq_password=args.password,
+        rabbitmq_use_tls=args.use_tls,
+        rabbitmq_api_port=args.api_port,
+    )
+
+    # Run the server with remaining args
     server.run(args)
 
 
