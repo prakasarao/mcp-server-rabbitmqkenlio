@@ -26,6 +26,7 @@ dependencies = [
     "readabilipy>=0.2.0",
     "requests>=2.32.3",
     "fastmcp>=2.2.5",
+    "loguru>=0.7.3",
 ]
 
 [project.scripts]
@@ -58,6 +59,7 @@ dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3", "pytest>=8.3.5"]
 [tool.ruff]
 line-length = 99
 target-version = "py310"
+exclude = ["uv.lock"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "Q"]

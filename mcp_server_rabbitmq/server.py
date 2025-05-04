@@ -1,8 +1,9 @@
 import argparse
-import logging
+import os
 import sys
 
 from fastmcp import FastMCP
+from loguru import logger
 
 from mcp_server_rabbitmq.admin import RabbitMQAdmin
 from mcp_server_rabbitmq.connection import RabbitMQConnection, validate_rabbitmq_name
@@ -23,12 +24,9 @@ from mcp_server_rabbitmq.handlers import (
 class RabbitMQMCPServer:
     def __init__(self):
         # Setup logger
-        self.logger = logging.getLogger("mcp-rabbitmq")
-        self.logger.setLevel(logging.INFO)
-        logging.basicConfig(
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[logging.FileHandler("server.log"), logging.StreamHandler()],
-        )
+        logger.remove()
+        logger.add(sys.stderr, level=os.getenv("FASTMCP_LOG_LEVEL", "WARNING"))
+        self.logger = logger
 
         # Initialize FastMCP
         self.mcp = FastMCP(
