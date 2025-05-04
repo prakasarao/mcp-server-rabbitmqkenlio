@@ -26,10 +26,7 @@ class RabbitMQMCPServer:
         self.logger.setLevel(logging.INFO)
         logging.basicConfig(
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            handlers=[
-                logging.FileHandler("server.log"),
-                logging.StreamHandler()
-            ]
+            handlers=[logging.FileHandler("server.log"), logging.StreamHandler()],
         )
 
         # Initialize FastMCP
@@ -57,8 +54,11 @@ class RabbitMQMCPServer:
             validate_rabbitmq_name(queue, "Queue name")
             try:
                 rabbitmq = RabbitMQConnection(
-                    self.rabbitmq_host, self.rabbitmq_port, self.rabbitmq_username, 
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 handle_enqueue(rabbitmq, queue, message)
                 return "Message successfully enqueued"
@@ -72,8 +72,11 @@ class RabbitMQMCPServer:
             validate_rabbitmq_name(exchange, "Exchange name")
             try:
                 rabbitmq = RabbitMQConnection(
-                    self.rabbitmq_host, self.rabbitmq_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 handle_fanout(rabbitmq, exchange, message)
                 return "Message successfully published to exchange"
@@ -86,8 +89,11 @@ class RabbitMQMCPServer:
             """List all the queues in the broker."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 result = handle_list_queues(admin)
                 return str(result)
@@ -100,8 +106,11 @@ class RabbitMQMCPServer:
             """List all the exchanges in the broker."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 result = handle_list_exchanges(admin)
                 return str(result)
@@ -114,8 +123,11 @@ class RabbitMQMCPServer:
             """Get detailed information about a specific queue."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 validate_rabbitmq_name(queue, "Queue name")
                 result = handle_get_queue_info(admin, queue, vhost)
@@ -129,8 +141,11 @@ class RabbitMQMCPServer:
             """Delete a specific queue."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 validate_rabbitmq_name(queue, "Queue name")
                 handle_delete_queue(admin, queue, vhost)
@@ -144,8 +159,11 @@ class RabbitMQMCPServer:
             """Remove all messages from a specific queue."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 validate_rabbitmq_name(queue, "Queue name")
                 handle_purge_queue(admin, queue, vhost)
@@ -159,8 +177,11 @@ class RabbitMQMCPServer:
             """Delete a specific exchange."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 validate_rabbitmq_name(exchange, "Exchange name")
                 handle_delete_exchange(admin, exchange, vhost)
@@ -174,8 +195,11 @@ class RabbitMQMCPServer:
             """Get detailed information about a specific exchange."""
             try:
                 admin = RabbitMQAdmin(
-                    self.rabbitmq_host, self.rabbitmq_api_port, self.rabbitmq_username,
-                    self.rabbitmq_password, self.rabbitmq_use_tls
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
                 )
                 validate_rabbitmq_name(exchange, "Exchange name")
                 result = handle_get_exchange_info(admin, exchange, vhost)
@@ -212,16 +236,22 @@ def main():
     parser.add_argument("--port", type=int, required=True, help="Port of the RabbitMQ host")
     parser.add_argument("--username", type=str, required=True, help="Username for the connection")
     parser.add_argument("--password", type=str, required=True, help="Password for the connection")
-    parser.add_argument("--use-tls", type=bool, default=False, help="Is the connection using TLS/SSL")
-    parser.add_argument("--api-port", type=int, default=15672, help="Port for the RabbitMQ management API")
+    parser.add_argument(
+        "--use-tls", type=bool, default=False, help="Is the connection using TLS/SSL"
+    )
+    parser.add_argument(
+        "--api-port", type=int, default=15672, help="Port for the RabbitMQ management API"
+    )
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
-    parser.add_argument("--server-port", type=int, default=8888, help="Port to run the MCP server on")
+    parser.add_argument(
+        "--server-port", type=int, default=8888, help="Port to run the MCP server on"
+    )
 
     args = parser.parse_args()
-    
+
     server = RabbitMQMCPServer()
     server.run(args)
 
 
 if __name__ == "__main__":
-    main()       
+    main()

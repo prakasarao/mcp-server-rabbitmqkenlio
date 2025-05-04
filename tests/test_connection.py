@@ -14,10 +14,9 @@ class TestRabbitMQConnection:
     def test_connection_initialization(self, mock_connection):
         """Test that the connection is initialized correctly."""
         mock_connection.return_value = MagicMock()
-        
         connection = RabbitMQConnection("localhost", 5672, "guest", "guest", False)
-        
         assert connection is not None
+        _, _ = connection.get_channel()
         mock_connection.assert_called_once()
 
 
@@ -36,12 +35,12 @@ class TestValidation:
         """Test that invalid names fail validation."""
         with pytest.raises(ValueError):
             validate_rabbitmq_name("", "Test")
-        
+
         with pytest.raises(ValueError):
             validate_rabbitmq_name("invalid/name", "Test")
-        
+
         with pytest.raises(ValueError):
             validate_rabbitmq_name("invalid\\name", "Test")
-        
+
         with pytest.raises(ValueError):
             validate_rabbitmq_name("invalid*name", "Test")
