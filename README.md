@@ -3,15 +3,6 @@
 
 A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) server implementation for RabbitMQ. Enabling MCP client to interact with queues and topics hosted in a RabbitMQ instance.
 
-## Features
-
-- Connect to RabbitMQ instances
-- Publish messages to queues and exchanges
-- List queues and exchanges
-- Get detailed information about queues and exchanges
-- Delete queues and exchanges
-- Purge messages from queues
-
 ## Running locally with the Claude desktop app
 
 ### Installing via Smithery
@@ -58,6 +49,11 @@ https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 ```
 4. Install and open the [Claude desktop app](https://claude.ai/download).
 5. Try asking Claude to do a read/write operation of some sort to confirm the setup (e.g. ask it to publish a message to a queue). If there are issues, use the Debugging tools provided in the MCP documentation [here](https://modelcontextprotocol.io/docs/tools/debugging).
+
+## Roadmap
+1. Expose admin API tools and pika SDK tools
+1. Support Streamable HTTP when it is GA in Python SDK
+1. Support OAuth 2.1 and use it with RabbitMQ OAuth
 
 ## Development
 
